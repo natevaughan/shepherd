@@ -22,6 +22,11 @@ public class Sheep : MonoBehaviour {
     public Vector3 heading;
     public bool repel;
 
+
+    //Time out stuff//
+    bool falling = false;
+    private float FallDuration = 2.5f;
+    private float FallTime = 0.0f;
     // protected delegate void ActiveState();
     // protected ActiveState currentState;
 
@@ -31,7 +36,7 @@ public class Sheep : MonoBehaviour {
         repel = false;
         navMeshAgent = this.GetComponent<NavMeshAgent>();
         navMeshAgent.enabled = true;
-        navMeshAgent.speed = Random.Range(1.0f, 3.0f); 
+        navMeshAgent.speed = Random.Range(0.1f, 1.0f); 
         // navMeshAgent.avoidancePriority = Random.Range(0, 100);  // Randomly set the avoidance priority
         navMeshRadius = navMeshAgent.radius;
         MeshArea = 1 << NavMesh.GetAreaFromName("Walkable");
@@ -45,10 +50,17 @@ public class Sheep : MonoBehaviour {
     
     public void OnTriggerEnter (Collider other)
     {
-        if (other.gameObject.CompareTag( "BorderWall" ))
+        if (other.gameObject.CompareTag( "BorderWall" )) {
             Object.Destroy(this.gameObject);
-        else
-            repel = !repel;
+        }
+        
+        if (other.gameObject.CompareTag( "PitFall")) {
+            var rb = GetComponent<Rigidbody>();
+            this.navMeshAgent.enabled = false;
+            rb.isKinematic = false;
+            rb.detectCollisions = false;
+            falling = true;
+        }
     }
 
     // Update is called once per frame
@@ -57,9 +69,16 @@ public class Sheep : MonoBehaviour {
 
         if (Input.GetKeyDown(KeyCode.Space)) repel = !repel;
         
-        if (!repel) {
+        if (!repel && IsNavMeshEnabled()) {
             this.navMeshAgent.SetDestination(this.pointOfInterest.position); 
             // Debug.DrawRay(CurrentPosition, this.pointOfInterest.position.normalized, Color.red, 1.0f);
+        } else if (falling) {
+             if (FallTime >= FallDuration) {
+                Object.Destroy(this.gameObject);
+            } else {
+                FallTime += Time.deltaTime;
+            }
+            
         } else {
             RunAway();
         }
@@ -68,19 +87,19 @@ public class Sheep : MonoBehaviour {
     void RunAway()
     {
         // Debug.Log(this.ID.ToString() + "RUUUUUNN!!!! " + this.activePredator.ID.ToString());
-        // Vector3 direction = (CurrentPosition() - PointOfInterest()).normalized;
-        // Vector3 destination = CurrentPosition() + direction;
+        Vector3 direction = (CurrentPosition() - PointOfInterest()).normalized;
+        Vector3 destination = CurrentPosition() + direction;
 
         // // Sample the provided Mesh Area and get the nearest point
-        // if (NavMesh.SamplePosition( destination, out this.nmHit, this.navMeshAgent.height*2, this.MeshArea )) {
-        //     this.navMeshAgent.SetDestination( this.nmHit.position );
-        //     // Debug.DrawRay(this.nmHit.position, direction, Color.yellow, 1.0f);
-        // }
+        if (IsNavMeshEnabled() && NavMesh.SamplePosition( destination, out this.nmHit, this.navMeshAgent.height*2, this.MeshArea)) {
+            this.navMeshAgent.SetDestination( this.nmHit.position );
+            // Debug.DrawRay(this.nmHit.position, direction, Color.yellow, 1.0f);
+        }
 
-        Meander();
+        // Meander();
 
-        float safety = Vector3.Distance(CurrentPosition(), PointOfInterest());
-        if ( this.navMeshAgent.remainingDistance < 0.05f) {
+        // float safety = Vector3.Distance(CurrentPosition(), PointOfInterest());
+        if ( IsNavMeshEnabled() && this.navMeshAgent.remainingDistance < 0.05f) {
             repel = !repel;
         }
         
@@ -101,6 +120,11 @@ public class Sheep : MonoBehaviour {
 
     }
 
+
+    bool IsNavMeshEnabled()
+    {
+        return this.navMeshAgent.enabled;
+    }
 
     Vector3 CurrentPosition() 
     {

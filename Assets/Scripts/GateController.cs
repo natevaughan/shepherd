@@ -8,8 +8,8 @@ public class GateController : MonoBehaviour {
     private bool open = true;
     private int xDistance = 0;
     private int xDistanceMin = 0;
-    private int xDistanceMax = 60;
-    private int speed = 10;
+    public int xDistanceMax = 3; // from 60
+    private int speed = 5;
 
     // Use this for initialization
     void Start () {
