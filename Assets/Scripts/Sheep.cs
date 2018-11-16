@@ -55,8 +55,8 @@ public class Sheep : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Space)) repel = !repel;
         
         if (!repel) {
-            this.navMeshAgent.acceleration = 8;
-            this.navMeshAgent.SetDestination(this.pointOfInterest.position); 
+            NavMesh.SamplePosition( this.pointOfInterest.position, out this.nmHit, this.navMeshAgent.height*2, this.MeshArea );
+            this.navMeshAgent.SetDestination(this.nmHit.position ); 
             // Debug.DrawRay(this.transform.position, this.pointOfInterest.position.normalized, Color.red, 1.0f);
         } else {
             RunAway();
