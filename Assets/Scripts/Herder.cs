@@ -29,12 +29,12 @@ public class Herder : MonoBehaviour {
 
     void Start()
     {
-        // GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("SpawnPoint");
+        GameObject[] gameObjects = GameObject.FindGameObjectsWithTag("SpawnPoint");
 
 
-        // foreach(GameObject t in gameObjects) {
-        //     this.spawnPoint = t.transform;    
-        // }
+        foreach(GameObject t in gameObjects) {
+            this.spawnPoint = t.transform;    
+        }
 
 
         for (var i = 0; i < this.spawnCount; i++) {

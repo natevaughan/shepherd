@@ -22,6 +22,9 @@ public class Sheep : MonoBehaviour {
     public Vector3 heading;
     public bool repel;
 
+    // protected delegate void ActiveState();
+    // protected ActiveState currentState;
+
 
     // Use this for initialization
     void Start () {
@@ -55,9 +58,8 @@ public class Sheep : MonoBehaviour {
         if (Input.GetKeyDown(KeyCode.Space)) repel = !repel;
         
         if (!repel) {
-            this.navMeshAgent.acceleration = 8;
             this.navMeshAgent.SetDestination(this.pointOfInterest.position); 
-            // Debug.DrawRay(this.transform.position, this.pointOfInterest.position.normalized, Color.red, 1.0f);
+            // Debug.DrawRay(CurrentPosition, this.pointOfInterest.position.normalized, Color.red, 1.0f);
         } else {
             RunAway();
         }
@@ -66,22 +68,48 @@ public class Sheep : MonoBehaviour {
     void RunAway()
     {
         // Debug.Log(this.ID.ToString() + "RUUUUUNN!!!! " + this.activePredator.ID.ToString());
-        Vector3 direction = (this.transform.position - this.pointOfInterest.transform.position).normalized;
+        // Vector3 direction = (CurrentPosition() - PointOfInterest()).normalized;
+        // Vector3 destination = CurrentPosition() + direction;
 
-        Vector3 destination = this.transform.position + direction;
+        // // Sample the provided Mesh Area and get the nearest point
+        // if (NavMesh.SamplePosition( destination, out this.nmHit, this.navMeshAgent.height*2, this.MeshArea )) {
+        //     this.navMeshAgent.SetDestination( this.nmHit.position );
+        //     // Debug.DrawRay(this.nmHit.position, direction, Color.yellow, 1.0f);
+        // }
 
-        // Sample the provided Mesh Area and get the nearest point
-        if (NavMesh.SamplePosition( destination, out this.nmHit, this.navMeshAgent.height*2, this.MeshArea )) {
-            this.navMeshAgent.SetDestination( this.nmHit.position );
-            // Debug.DrawRay(this.nmHit.position, direction, Color.yellow, 1.0f);
-        }
+        Meander();
 
-        float safety = Vector3.Distance(this.transform.position, this.pointOfInterest.transform.position);
+        float safety = Vector3.Distance(CurrentPosition(), PointOfInterest());
         if ( this.navMeshAgent.remainingDistance < 0.05f) {
             repel = !repel;
         }
         
     }
 
+    void Meander() 
+    {
+        float distance = Random.Range(1, 3);
+        Vector3 direction = Random.insideUnitCircle;
+        direction.z = direction.y;
+        direction.y = 0;
+        direction += PointOfInterest();
 
+        if (NavMesh.SamplePosition( direction, out this.nmHit, distance, this.MeshArea)) {
+            this.navMeshAgent.SetDestination( this.nmHit.position );
+            // Debug.DrawRay(this.nmHit.position, direction, Color.yellow, 1.0f);
+        }
+
+    }
+
+
+    Vector3 CurrentPosition() 
+    {
+        return this.transform.position;
+    }
+
+
+    Vector3 PointOfInterest()
+    {
+        return this.pointOfInterest.transform.position;
+    }
 }
