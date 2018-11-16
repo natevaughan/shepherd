@@ -8,6 +8,8 @@ TagManager:
   - SpawnPoint
   - Sheep
   - BorderWall
+  - Hit
+  - PitFall
   layers:
   - Default
   - TransparentFX

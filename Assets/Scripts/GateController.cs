@@ -5,7 +5,7 @@ using UnityEngine;
 public class GateController : MonoBehaviour {
 
     private bool animate = false;
-    private bool open = true;
+    public bool open = true;
     private int xDistance = 0;
     private int xDistanceMin = 0;
     public int xDistanceMax = 3; // from 60

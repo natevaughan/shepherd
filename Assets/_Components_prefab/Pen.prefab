@@ -3195,6 +3195,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7a94c172e41c7451cb16a936bbdb758e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  open: 1
   xDistanceMax: 3
 --- !u!136 &136035802040306564
 CapsuleCollider:
